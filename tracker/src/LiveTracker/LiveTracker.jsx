@@ -1,25 +1,32 @@
-import React, { useState } from "react";
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@mui/material/Card";
+import { Button } from "@mui/material/Button";
 
-const EmergencyRescueApp = () => {
+const LiveTracker = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [tracking, setTracking] = useState(false);
   const [location, setLocation] = useState(null);
 
-  const getMapLink = (latitude, longitude) => {
-    return `https://www.google.com/maps?q=${latitude},${longitude}`;
+  // Function to fetch actual location
+  const fetchLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude: latitude.toFixed(6), longitude: longitude.toFixed(6) });
+        },
+        (error) => {
+          console.error("Error fetching location:", error);
+          alert("Unable to fetch location. Please enable location services.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
   };
 
-  // Mock function to simulate location triangulation
-  const triangulateLocation = () => {
-    // Simulated location data
-    const mockLocation = {
-      latitude: (Math.random() * 180 - 90).toFixed(6),
-      longitude: (Math.random() * 360 - 180).toFixed(6),
-    };
-    setLocation(mockLocation);
+  const getMapLink = (latitude, longitude) => {
+    return `https://www.google.com/maps?q=${latitude},${longitude}`;
   };
 
   const handleStartTracking = () => {
@@ -28,11 +35,11 @@ const EmergencyRescueApp = () => {
       return;
     }
     setTracking(true);
-    triangulateLocation();
+    fetchLocation();
 
     // Simulate periodic tracking every 5 seconds
     const intervalId = setInterval(() => {
-      if (tracking) triangulateLocation();
+      if (tracking) fetchLocation();
     }, 5000);
 
     // Stop tracking when the component unmounts
@@ -74,10 +81,10 @@ const EmergencyRescueApp = () => {
               <p className="text-green-600 font-medium">Tracking Active...</p>
               {location && (
                 <div>
-                <p className="text-sm text-gray-700">
-                  Location: Latitude {location.latitude}, Longitude {location.longitude}
-                </p>
-                <a
+                  <p className="text-sm text-gray-700">
+                    Location: Latitude {location.latitude}, Longitude {location.longitude}
+                  </p>
+                  <a
                     href={getMapLink(location.latitude, location.longitude)}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -85,7 +92,7 @@ const EmergencyRescueApp = () => {
                   >
                     View on Map
                   </a>
-                  </div>
+                </div>
               )}
             </div>
           ) : (
@@ -116,4 +123,4 @@ const EmergencyRescueApp = () => {
   );
 };
 
-export default EmergencyRescueApp;
+export default LiveTracker;
