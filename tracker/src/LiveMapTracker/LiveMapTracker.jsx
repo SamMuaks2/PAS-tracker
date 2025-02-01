@@ -15,62 +15,92 @@ const LiveMapTracker = () => {
   const [location, setLocation] = useState(null);
   const [address, setAddress] = useState({ country: "", city: "" });
 
-  // Function to fetch actual location
-  const fetchLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ latitude: latitude.toFixed(6), longitude: longitude.toFixed(6) });
-          fetchAddress(latitude, longitude);
-        },
-        (error) => {
-          console.error("Error fetching location:", error);
-          alert("Unable to fetch location. Please enable location services.");
-        }
-      );
-    } else {
-      alert("Geolocation is not supported by this browser.");
+  const fetchPhoneLocation = async () => {
+    if (!phoneNumber) {
+      alert("Please enter a phone number to track.");
+      return;
     }
-  };
-
-  // Function to fetch country and city using reverse geocoding
-  const fetchAddress = async (latitude, longitude) => {
+  
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-      );
+      const response = await fetch(`https://api.example.com/location?phone=${phoneNumber}`);
       const data = await response.json();
-      const country = data.address?.country || "Unknown";
-      const city = data.address?.city || data.address?.town || data.address?.village || "Unknown";
-
-      setAddress({ country, city });
-      console.log(`Country: ${country}, City: ${city}`);
+  
+      if (data.success) {
+        setLocation({ latitude: data.latitude, longitude: data.longitude });
+        setAddress({ country: data.country, city: data.city });
+      } else {
+        alert("Unable to fetch location. Invalid phone number or service unavailable.");
+      }
     } catch (error) {
-      console.error("Error fetching address:", error);
+      console.error("Error fetching phone location:", error);
+      alert("Error fetching location. Please try again later.");
     }
   };
+  
+  const handleStartTracking = () => {
+    setTracking(true);
+    fetchPhoneLocation();
+    const intervalId = setInterval(fetchPhoneLocation, 5000);
+    return () => clearInterval(intervalId);
+  };
+  
+
+  // Function to fetch actual location
+  // const fetchLocation = () => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         const { latitude, longitude } = position.coords;
+  //         setLocation({ latitude: latitude.toFixed(6), longitude: longitude.toFixed(6) });
+  //         fetchAddress(latitude, longitude);
+  //       },
+  //       (error) => {
+  //         console.error("Error fetching location:", error);
+  //         alert("Unable to fetch location. Please enable location services.");
+  //       }
+  //     );
+  //   } else {
+  //     alert("Geolocation is not supported by this browser.");
+  //   }
+  // };
+
+  // // Function to fetch country and city using reverse geocoding
+  // const fetchAddress = async (latitude, longitude) => {
+  //   try {
+  //     const response = await fetch(
+  //       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+  //     );
+  //     const data = await response.json();
+  //     const country = data.address?.country || "Unknown";
+  //     const city = data.address?.city || data.address?.town || data.address?.village || "Unknown";
+
+  //     setAddress({ country, city });
+  //     console.log(`Country: ${country}, City: ${city}`);
+  //   } catch (error) {
+  //     console.error("Error fetching address:", error);
+  //   }
+  // };
 
   const getMapLink = (latitude, longitude) => {
     return `https://www.google.com/maps?q=${latitude},${longitude}`;
   };
 
-  const handleStartTracking = () => {
-    if (!phoneNumber) {
-      alert("Please enter a phone number to track.");
-      return;
-    }
-    setTracking(true);
-    fetchLocation();
+  // const handleStartTracking = () => {
+  //   if (!phoneNumber) {
+  //     alert("Please enter a phone number to track.");
+  //     return;
+  //   }
+  //   setTracking(true);
+  //   fetchLocation();
 
-    // Simulate periodic tracking every 5 seconds
-    const intervalId = setInterval(() => {
-      if (tracking) fetchLocation();
-    }, 5000);
+  //   // Simulate periodic tracking every 5 seconds
+  //   const intervalId = setInterval(() => {
+  //     if (tracking) fetchLocation();
+  //   }, 5000);
 
-    // Stop tracking when the component unmounts
-    return () => clearInterval(intervalId);
-  };
+  //   // Stop tracking when the component unmounts
+  //   return () => clearInterval(intervalId);
+  // };
 
   const handleStopTracking = () => {
     setTracking(false);
