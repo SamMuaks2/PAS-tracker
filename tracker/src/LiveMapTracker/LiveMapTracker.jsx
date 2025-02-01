@@ -15,27 +15,128 @@ const LiveMapTracker = () => {
   const [location, setLocation] = useState(null);
   const [address, setAddress] = useState({ country: "", city: "" });
 
-  const fetchPhoneLocation = async () => {
-    if (!phoneNumber) {
-      alert("Please enter a phone number to track.");
-      return;
-    }
-  
+  const fetchMccMnc = async (phoneNumber) => {
     try {
-      const response = await fetch(`https://api.example.com/location?phone=${phoneNumber}`);
+      const response = await fetch(`https://api.numlookupapi.com/v1/validate/${phoneNumber}?apikey=num_live_DHVZaR7ztpBEV5oVeVTRHMtyb981rXH7wPI3LXNY`);
       const data = await response.json();
   
-      if (data.success) {
-        setLocation({ latitude: data.latitude, longitude: data.longitude });
-        setAddress({ country: data.country, city: data.city });
-      } else {
-        alert("Unable to fetch location. Invalid phone number or service unavailable.");
-      }
-    } catch (error) {
-      console.error("Error fetching phone location:", error);
-      alert("Error fetching location. Please try again later.");
+  //     if (data.success) {
+  //       return { mcc: data.mcc, mnc: data.mnc };
+  //     } else {
+  //       console.error("MCC & MNC not found.");
+  //       return { mcc: null, mnc: null };
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching MCC and MNC:", error);
+  //     return { mcc: null, mnc: null };
+  //   }
+  // };
+
+  if (data.valid) {
+    return { mcc: data.mcc, mnc: data.mnc };
+  } else {
+    console.error("Invalid phone number.");
+    return { mcc: null, mnc: null };
+  }
+} catch (error) {
+  console.error("Error fetching MCC and MNC:", error);
+  return { mcc: null, mnc: null };
+}
+};
+
+const fetchCellTowerLocation = async (mcc, mnc, lac, cellId) => {
+  const API_KEY = "pk.5b8599952bb7a033c6efffc54ac134a0"; 
+
+  try {
+    const response = await fetch(
+      `https://opencellid.org/cell/get?key=${API_KEY}&mcc=${mcc}&mnc=${mnc}&lac=${lac}&cellid=${cellId}&format=json`
+    );
+    const data = await response.json();
+
+    if (data.lat && data.lon) {
+      return { latitude: data.lat, longitude: data.lon, accuracy: data.range || "Unknown" };
+    } else {
+      console.error("Cell location not found.");
+      return { latitude: null, longitude: null, accuracy: null };
     }
-  };
+  } catch (error) {
+    console.error("Error fetching cell tower location:", error);
+    return { latitude: null, longitude: null, accuracy: null };
+  }
+};
+
+
+const fetchPhoneLocation = async () => {
+  if (!phoneNumber) {
+    alert("Please enter a phone number to track.");
+    return;
+  }
+
+  try {
+    // Step 1: Get MCC & MNC
+    const { mcc, mnc } = await fetchMccMnc(phoneNumber);
+
+    // Step 2: Get LAC & Cell ID (hardcoded for testing, replace with actual method)
+    const { lac, cellId } = ${lac} ${cellId} ; //{ lac: "7033", cellId: "17811" }; // Replace with actual data source
+
+    if (!mcc || !mnc || !lac || !cellId) {
+      alert("Could not retrieve network details.");
+      return;
+    }
+
+    // Step 3: Get location from OpenCellID
+    const locationData = await fetchCellTowerLocation(mcc, mnc, lac, cellId);
+
+    if (locationData.latitude && locationData.longitude) {
+      setLocation({ latitude: locationData.latitude, longitude: locationData.longitude });
+      alert(`Location Found: Lat ${locationData.latitude}, Lon ${locationData.longitude}`);
+    } else {
+      alert("Unable to fetch location.");
+    }
+  } catch (error) {
+    console.error("Error fetching phone location:", error);
+  }
+};
+
+  
+
+//   const fetchPhoneLocation = async () => {
+//     if (!phoneNumber) {
+//       alert("Please enter a phone number to track.");
+//       return;
+//     }
+
+//     const API_KEY = "pk.5b8599952bb7a033c6efffc54ac134a0"; 
+
+//     try {
+//       // Step 1: Get MCC & MNC
+//       const { mcc, mnc } = await fetchMccMnc(phoneNumber);
+  
+//       // Step 2: Get LAC & Cell ID from device (for mobile apps)
+//       const { lac, cellId } = await getLacAndCellId();
+  
+//       if (!mcc || !mnc || !lac || !cellId) {
+//         alert("Could not retrieve network details.");
+//         return;
+//       }
+  
+//       // Step 3: Get location from OpenCellID
+//       const response = await fetch(
+//         `https://opencellid.org/cell/get?key=${API_KEY}&mcc=${mcc}&mnc=${mnc}&lac=${lac}&cellid=${cellId}`
+//       );
+//     const data = await response.json();
+
+//     if (data.lat && data.lon) {
+//       setLocation({ latitude: data.lat, longitude: data.lon });
+//       setAddress({ country: data.country || "Unknown", city: data.city || "Unknown" });
+//     } else {
+//       alert("Unable to fetch location. Invalid data or service unavailable.");
+//     }
+//   } catch (error) {
+//     console.error("Error fetching phone location:", error);
+//     alert("Error fetching location. Please try again later.");
+//   }
+// };
   
   const handleStartTracking = () => {
     setTracking(true);
