@@ -78,7 +78,7 @@ const LiveMapTracker = () => {
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-blue-50">
       <Card className="max-w-md w-full shadow-lg">
         <CardContent className="p-4">
-          <h1 className="text-xl font-bold text-center mb-4">
+          <h1 className="text-xl font-bold text-center mb-4 text-blue-600 dark:text-sky-400">
             Emergency Rescue Service
           </h1>
 
