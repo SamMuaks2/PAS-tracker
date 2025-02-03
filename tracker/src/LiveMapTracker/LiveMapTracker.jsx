@@ -4,11 +4,6 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 
 
-// import { Card, CardContent } from "@mui/material/Card";
-// import { Button } from "@mui/material/Button";
-
-
-
 const LiveMapTracker = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [tracking, setTracking] = useState(false);
@@ -17,7 +12,7 @@ const LiveMapTracker = () => {
 
   const fetchMccMnc = async (phoneNumber) => {
     try {
-      const response = await fetch(`https://api.numlookupapi.com/v1/validate/${phoneNumber}?apikey=num_live_DHVZaR7ztpBEV5oVeVTRHMtyb981rXH7wPI3LXNY`);
+      const response = await fetch(`https://api.numlookupapi.com/v1/validate/{phoneNumber}?apikey=num_live_DHVZaR7ztpBEV5oVeVTRHMtyb981rXH7wPI3LXNY`);
       const data = await response.json();
   
   //     if (data.success) {
@@ -49,6 +44,8 @@ const fetchCellTowerLocation = async (mcc, mnc, lac, cellId) => {
 
   try {
     const response = await fetch(
+      // `https://opencellid.org/cell/get?key=pk.5b8599952bb7a033c6efffc54ac134a0&mcc=MCC&mnc=MNC&lac=LAC&cellid=CELL_ID&format=json`
+
       `https://opencellid.org/cell/get?key=${API_KEY}&mcc=${mcc}&mnc=${mnc}&lac=${lac}&cellid=${cellId}&format=json`
     );
     const data = await response.json();
@@ -77,7 +74,7 @@ const fetchPhoneLocation = async () => {
     const { mcc, mnc } = await fetchMccMnc(phoneNumber);
 
     // Step 2: Get LAC & Cell ID (hardcoded for testing, replace with actual method)
-    const { lac, cellId } = ${lac} ${cellId} ; //{ lac: "7033", cellId: "17811" }; // Replace with actual data source
+    const { lac, cellId } = ${lac} ${cellId} ; //{ lac: "7033", cellId: "17811" } // Replace with actual data source
 
     if (!mcc || !mnc || !lac || !cellId) {
       alert("Could not retrieve network details.");

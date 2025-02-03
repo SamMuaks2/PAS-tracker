@@ -2,7 +2,8 @@ import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom';
 // import EmergencyRescueApp from './Tracker/Tracker'
 // import LiveTracker from './LiveTracker/LiveTracker';
-import LiveMapTracker from './LiveMapTracker/LiveMapTracker';
+// import LiveMapTracker from './LiveMapTracker/LiveMapTracker';
+import CellLocator from './CellLocator/CellLocator';
 
 function App() {
   return (
@@ -11,7 +12,10 @@ function App() {
 
       {/* <LiveTracker /> */}
       
-      <LiveMapTracker />
+      {/* <LiveMapTracker /> */}
+
+      <CellLocator />
+
     </Router>
   )
 }
