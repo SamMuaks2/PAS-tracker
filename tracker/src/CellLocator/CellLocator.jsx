@@ -17,8 +17,12 @@ const CellLocator = () => {
       
         try {
           // Step 1: Fetch MCC, MNC, LAC, and Cell ID
+
+          const unwiredToken = "pk.0f34c4e4566ed43b59e9fbef2e740a32";
+
           const numLookupResponse = await fetch(
-            `https://api.numlookupapi.com/v1/validate/${phoneNumber}?apikey=num_live_DHVZaR7ztpBEV5oVeVTRHMtyb981rXH7wPI3LXNY`
+            `https://us1.unwiredlabs.com/v2/process/${phoneNumber}?apikey=${unwiredToken}`
+            // `https://api.numlookupapi.com/v1/validate/${phoneNumber}?apikey=num_live_DHVZaR7ztpBEV5oVeVTRHMtyb981rXH7wPI3LXNY`
           );
           const numLookupData = await numLookupResponse.json();
 
